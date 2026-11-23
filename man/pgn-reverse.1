@@ -1,0 +1,177 @@
+.TH PGN-REVERSE 1 "October 2026" "pgn-reverse" "User Commands"
+.SH NAME
+pgn-reverse \- reverse the order of chess games in a PGN file
+.SH SYNOPSIS
+.B pgn-reverse
+[\fIOPTIONS\fR] \fIINPUT OUTPUT\fR
+.br
+.B pgn-reverse
+.B --help
+.br
+.B pgn-reverse
+.B -?
+.br
+.B pgn-reverse
+.B --version
+.SH DESCRIPTION
+A Portable Game Notation (PGN) file can hold one or many chess games. PGN is
+widely used to save and share chess games played with friends, at chess clubs,
+and in tournaments.
+.B pgn-reverse
+writes the games in the opposite order. The moves inside each chess game stay
+in their original order.
+.PP
+For example, a tournament file may list the oldest games first, while you want
+to study the newest games first. This command reads the existing file
+.I INPUT
+and writes a new file named
+.IR OUTPUT .
+.PP
+.RS
+.nf
+pgn-reverse old-games.pgn new-games.pgn
+.fi
+.RE
+.PP
+The original file is left unchanged. INPUT and OUTPUT must be different files.
+If OUTPUT already exists, it is replaced only when you use
+.BR --force .
+.PP
+For four games, reversing changes their order like this:
+.PP
+.RS
+.nf
+Original order:
+    1. Anna - Ben
+    2. Clara - David
+    3. Anna - Clara
+    4. Emma - David
+
+Reversed order:
+    1. Emma - David
+    2. Anna - Clara
+    3. Clara - David
+    4. Anna - Ben
+.fi
+.RE
+.PP
+Only the order of the whole chess games changes. The moves within every game
+remain as they were.
+.SH EXAMPLES
+.TP
+.B pgn-reverse club.pgn club-newest-first.pgn
+Reverse every chess game in the club file.
+.TP
+.B pgn-reverse --head 10 games.pgn first-10-reversed.pgn
+Take the first 10 games and write them in reverse order.
+.TP
+.B pgn-reverse --tail 10 games.pgn last-10-reversed.pgn
+Take the last 10 games and write them in reverse order.
+.TP
+.B pgn-reverse --head 10 --skip 3 games.pgn selected.pgn
+From the first 10 games, skip the first 3 and reverse the remaining 7.
+.TP
+.B pgn-reverse --tail 10 --skip 3 games.pgn selected.pgn
+From the last 10 games, skip the last 3 and reverse the remaining 7.
+.TP
+.B pgn-reverse --force --verbose games.pgn reversed.pgn
+Replace an existing output file and show brief progress messages.
+.SH OPTIONS
+.TP
+.B --head \fIN\fR
+Take the first \fIN\fR chess games from INPUT and write them in reverse order.
+If \fIN\fR is larger than the number of games, all games are taken. Zero
+takes no games.
+.TP
+.B --tail \fIN\fR
+Take the last \fIN\fR chess games from INPUT and write them in reverse order.
+If \fIN\fR is larger than the number of games, all games are taken. Zero
+takes no games.
+.TP
+.B --skip \fIM\fR
+Skip games within the selection made by \fB--head\fR or \fB--tail\fR, then
+reverse what remains. With \fB--head\fR, it skips the first \fIM\fR games in
+that selection. With \fB--tail\fR, it skips the last \fIM\fR games. For
+example, \fB--head 8 --skip 2\fR skips games 1 and 2, then writes games 8
+through 3. \fB--skip\fR requires exactly one of \fB--head\fR and \fB--tail\fR.
+.TP
+.B --force
+Allow an existing regular OUTPUT file to be replaced after the new file is
+ready. INPUT is never replaced.
+.TP
+.B --verbose
+Show brief progress messages while reading and writing. A successful run is
+otherwise silent.
+.TP
+.B --help
+Show command usage, options, and examples. No PGN file is opened.
+.TP
+.B --version
+Show the version number.
+.TP
+.B -?
+Show the same help as \fB--help\fR.
+.SH "HOW SELECTION WORKS"
+Without \fB--head\fR or \fB--tail\fR, every game is selected. The selected
+games are always written in reverse order. \fB--head\fR and \fB--tail\fR
+cannot be used together, and \fB--skip\fR cannot be used on its own.
+.PP
+Suppose INPUT contains games 1 through 8. With \fB--head 6 --skip 2\fR,
+\fBpgn-reverse\fR first takes games 1 through 6, skips games 1 and 2, then
+writes games 6, 5, 4, 3. With \fB--tail 6 --skip 2\fR, it first takes games
+3 through 8, skips games 7 and 8, then writes games 6, 5, 4, 3.
+.PP
+If \fIN\fR is larger than the number of games in the file, \fB--head\fR or
+\fB--tail\fR selects all available games. \fIN\fR = 0 selects no games, and
+\fIM\fR = 0 skips no games. If \fIM\fR is as large as or larger than the
+selected count, no games remain. An empty selection is a successful result and
+does not create or change OUTPUT, even with \fB--force\fR.
+.SH "FILES AND SAFETY"
+INPUT is the existing PGN file. OUTPUT is a separate file that receives the
+selected games. The original file is not changed, and the program refuses to
+use the same file for both names.
+.PP
+An existing OUTPUT is left alone unless \fB--force\fR is given. Even then,
+INPUT is never overwritten. OUTPUT must be a regular file or a new file name;
+symbolic links and special files are refused. If no games are selected, an
+existing OUTPUT is left unchanged.
+.SH "PGN FILES"
+Player names, tags, moves, comments, and variations are kept. The program does
+not change the moves inside a game or check whether they are legal chess moves.
+It only normalizes the blank-line separators: each written game, including the
+last one, ends with one empty line.
+.PP
+A game without a result marker can still be used when its end is clear, such as
+at the end of the file or before a new tag section separated by a blank line.
+The program does not add a missing result or missing moves. It reports an error
+with the game number and input line when the PGN structure is damaged or a game
+boundary is unclear.
+.PP
+A recognizable tag typo is tolerated: the tag's closing quote has one
+backslash immediately before it, followed by the final \fB]\fR and optional
+whitespace to the end of the line. The tag is used to find game boundaries,
+but its original text is kept unchanged. Other unclear tag errors are still
+reported. With \fB--verbose\fR, at most ten repair warnings are printed,
+followed by a count of any additional repairs.
+.SH "EXIT STATUS"
+.TP
+.B 0
+Success, including when no games were selected.
+.TP
+.B 2
+An error in the command, input file, PGN structure, or output file.
+.SH "TECHNICAL NOTES"
+This is not a full PGN formatter. It keeps game text instead of rebuilding it,
+but normalizes separators as described above. Comments between a game and the
+next game are kept with the preceding game. A UTF-8 byte-order mark, if present,
+is kept at the beginning. A partial selection omits other file-level text.
+.PP
+The program reads the file in order and stores game positions so it can write
+the selected games backwards without loading the full file into memory. It
+checks that INPUT has not changed during processing. Another program can still
+change a file at the instant between the final check and writing OUTPUT.
+.SH SEE ALSO
+.BR pgn-count (1)
+.BR pgn-list (1)
+.SH AUTHOR
+The pgn-reverse project.

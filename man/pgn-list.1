@@ -1,0 +1,48 @@
+.TH PGN-LIST 1 "November 2026" "pgn-list" "User Commands"
+.SH NAME
+pgn-list \- list players and details from PGN games
+.SH SYNOPSIS
+.B pgn-list
+[\fIOPTIONS\fR] \fIFILE\fR [\fIFILE ...\fR]
+.SH DESCRIPTION
+.B pgn-list
+prints one line for each chess game in one or more PGN files. Each line shows
+the players and ratings, site, year, ECO code, and result.
+.PP
+.nf
+club.pgn: Doe 2750 - Carlsen 2830 | Wijk aan Zee | 2024 | A22 | 1-0
+.fi
+.PP
+If a player name uses the PGN form "Surname, Given name", only the part before
+the comma is shown. Other names are shown as written. Missing names, site,
+year, or ECO appear as "?".  Result markers in the moves take
+priority over the Result tag; a missing or unknown result is shown as "*".
+Player, site, and ECO fields are limited to 32 bytes, including "..." when
+shortened. Input file names are shown in full.
+.PP
+Use the file name
+.B -
+to read standard input. At least one file name is required.
+.SH OPTIONS
+.TP
+.BR -n , " " --no-filename
+Omit the file name at the start of each output line.
+.TP
+.B --strict
+Stop after the first file that cannot be read or parsed. Without this option,
+the program reports the error and continues with later files.
+.TP
+.B --help
+Show usage and options.
+.TP
+.B -?
+Show the same help as --help.
+.TP
+.B --version
+Show the version number.
+.SH EXIT STATUS
+The exit status is 0 when all requested inputs are listed, and 2 if an input
+cannot be read or parsed or the command line is invalid.
+.SH SEE ALSO
+.BR pgn-count (1),
+.BR pgn-reverse (1)

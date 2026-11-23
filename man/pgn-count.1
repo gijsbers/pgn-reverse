@@ -1,0 +1,55 @@
+.TH PGN-COUNT 1 "November 2026" "pgn-count" "User Commands"
+.SH NAME
+pgn-count \- count chess games in PGN files
+.SH SYNOPSIS
+.B pgn-count
+[\fIOPTIONS\fR] \fIFILE\fR [\fIFILE ...\fR]
+.SH DESCRIPTION
+.B pgn-count
+counts chess games in one or more Portable Game Notation (PGN) files. It
+prints a count for each file and, when more than one file is given, their
+combined total.
+.PP
+Use the file name
+.B -
+to read standard input alongside other files. At least one file name is
+required, and standard input can be named only once.
+.SH OPTIONS
+.TP
+.BR -n , " " --no-filename
+Do not print file names with per-file counts.
+.TP
+.BR -r , " " --results
+Also show the number of white wins, black wins, draws, and undecided games.
+The final result marker in the moves takes priority; if it is missing, the
+\fBResult\fR tag is used. A game without a recognized result is counted as
+undecided.
+.TP
+.B --strict
+Stop after the first file that cannot be read or parsed. Without this option,
+the program reports the error and continues with later files.
+.TP
+.BR -s , " " --summary
+Print only the combined total.
+.TP
+.B --help
+Show usage and options.
+.TP
+.B --version
+Show the version number.
+.SH EXAMPLES
+.TP
+.B pgn-count club.pgn
+Count games in one file.
+.TP
+.B pgn-count --results games-a.pgn games-b.pgn
+Count games and results in both files, then show their total.
+.TP
+.B cat games.pgn | pgn-count --summary
+Print only the total number of games from standard input.
+.SH EXIT STATUS
+The exit status is 0 when all requested inputs are counted, and 2 if an input
+cannot be read or parsed or the command line is invalid.
+.SH SEE ALSO
+.BR pgn-list (1),
+.BR pgn-reverse (1)
